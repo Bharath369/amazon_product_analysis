@@ -3,32 +3,38 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import zipfile
+import io
 
 # Set page configuration
 st.set_page_config(layout="wide")
 
-# Path variables
-extracted_files_path = 'C:/Users/bhara/OneDrive - University of Cincinnati/Capstone/Amazon Products Final/'
-output_file_path = (
-    'C:/Users/bhara/OneDrive - University of Cincinnati/Capstone/Amazon Products Final/amazon_consolidated_data.csv')
 
 
 # Load and combine all CSV files into a single DataFrame
 @st.cache_data
-def load_data():
-    extracted_files = os.listdir(extracted_files_path)
-    dataframes = []
-    for file in extracted_files:
-        file_path = os.path.join(extracted_files_path, file)
-        if file.endswith('.csv'):
-            df = pd.read_csv(file_path)
-            df['category'] = os.path.splitext(file)[0]
-            dataframes.append(df)
-    all_data = pd.concat(dataframes, ignore_index=True)
-    all_data.to_csv(output_file_path, index=False)
+
+# Function to extract and load data from a zip file
+def load_data_from_zip(zip_path):
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        # Extract all the files
+        z.extractall()
+        # Get the list of extracted files
+        extracted_files = z.namelist()
+
+    # Assuming there is only one CSV file in the zip
+    csv_file = [file for file in extracted_files if file.endswith('.csv')][0]
+
+    # Load the CSV file into a DataFrame
+    all_data = pd.read_csv(csv_file)
+
     return all_data
 
-all_data = load_data()
+zip_path = 'amazon_consolidated_data.zip'
+
+# Load data from the ZIP file
+all_data = load_data_from_zip(zip_path)
+
 
 # Convert ratings and no_of_ratings to numeric and handle non-numeric values
 all_data['ratings'] = pd.to_numeric(all_data['ratings'], errors='coerce')
@@ -36,11 +42,9 @@ all_data['no_of_ratings'] = pd.to_numeric(all_data['no_of_ratings'], errors='coe
 all_data['discount_price'] = pd.to_numeric(all_data['discount_price'], errors='coerce')
 all_data['actual_price'] = pd.to_numeric(all_data['actual_price'], errors='coerce')
 
-
 avg_rating = all_data['ratings'].mean()
 avg_no_of_ratings = all_data['no_of_ratings'].mean()
 all_data = all_data.rename(columns={'name': 'product_name'})
-
 
 # Streamlit app
 st.title('Amazon Products Analysis')
@@ -80,8 +84,6 @@ elif option == 'Data Analysis':
     st.dataframe(numerical_stats.style.format("{:.2f}").set_properties(**{'text-align': 'center'}).set_table_styles(
         [dict(selector='th', props=[('text-align', 'center')])]))
 
-
-
     # Missing values analysis
     st.subheader('Step 2: Missing Values Analysis')
 
@@ -93,8 +95,6 @@ elif option == 'Data Analysis':
 
     # Display missing values analysis
     st.dataframe(missing_values_df)
-
-
 
     # Price Distribution Analysis
     st.subheader('Step 3: Price Distribution Analysis')
@@ -187,7 +187,8 @@ elif option == 'Product Comparison':
                 selected_data = all_data[all_data['product_name'].isin(selected_products)].copy()
 
                 # Calculate discount percentage
-                selected_data['discount_percentage'] = ((selected_data['actual_price'] - selected_data['discount_price']) / selected_data['actual_price']) * 100
+                selected_data['discount_percentage'] = ((selected_data['actual_price'] - selected_data[
+                    'discount_price']) / selected_data['actual_price']) * 100
 
                 # Truncate product names to 50 characters for plotting
                 selected_data['truncated_product_name'] = selected_data['product_name'].str[:50]
@@ -202,7 +203,8 @@ elif option == 'Product Comparison':
                 }).reset_index()
 
                 # Flatten MultiIndex columns
-                product_stats.columns = ['_'.join(col).strip() if col[1] else col[0] for col in product_stats.columns.values]
+                product_stats.columns = ['_'.join(col).strip() if col[1] else col[0] for col in
+                                         product_stats.columns.values]
 
                 # Display selected product information in a table
                 st.subheader('Selected Product Information')
