@@ -2,9 +2,12 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
 import zipfile
-import io
+import plotly.express as px
+import numpy as np
+import plotly.graph_objects as go
+
+
 
 # Set page configuration
 st.set_page_config(layout="wide")
@@ -30,37 +33,79 @@ def load_data_from_zip(zip_path):
 
     return all_data
 
+
+def plot_histogram(df, metric, title):
+    fig = px.histogram(df, x=metric, nbins=30, histnorm='density',
+                       labels={'x': metric},
+                       title=title)
+    fig.update_layout(
+        xaxis_title=metric,
+        yaxis_title='Density',
+        bargap=0.5,  # Gap between bars of adjacent location coordinates
+        showlegend=False  # Hide legend for simplicity
+    )
+    return fig
+
 zip_path = 'amazon_consolidated_data.zip'
 
 # Load data from the ZIP file
 all_data = load_data_from_zip(zip_path)
+all_data = all_data.loc[:, ~all_data.columns.str.startswith('Unnamed')]
 
 
 # Convert ratings and no_of_ratings to numeric and handle non-numeric values
 all_data['ratings'] = pd.to_numeric(all_data['ratings'], errors='coerce')
 all_data['no_of_ratings'] = pd.to_numeric(all_data['no_of_ratings'], errors='coerce')
+all_data['discount_price'] = all_data['discount_price'].replace('[₹,]', '', regex=True).astype(float)
 all_data['discount_price'] = pd.to_numeric(all_data['discount_price'], errors='coerce')
+all_data['actual_price'] = all_data['actual_price'].replace('[₹,]', '', regex=True).astype(float)
 all_data['actual_price'] = pd.to_numeric(all_data['actual_price'], errors='coerce')
+
 
 avg_rating = all_data['ratings'].mean()
 avg_no_of_ratings = all_data['no_of_ratings'].mean()
 all_data = all_data.rename(columns={'name': 'product_name'})
 
 # Streamlit app
-st.title('Amazon Products Analysis')
-
 # Sidebar for navigation
 st.sidebar.title('Navigation')
 option = st.sidebar.radio('Select a page:', ['Project Overview', 'Data Analysis', 'Product Comparison', 'About'])
 
 if option == 'Project Overview':
-    st.header('Project Overview')
-    project_summary = """
-    **Amazon Sales Analytics Hub - Exploring Product Data**
+    # Centered and beautified title
+    st.markdown("""
+    <div style='text-align: center;'>
+        <h1 style='font-size: 36px; color: #0066cc;'>Amazon Product Analysis App</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
-    The "Amazon Sales Analytics Hub - Exploring Product Data" project addresses the challenges faced by Amazon retailers in understanding customer preferences, optimizing pricing strategies, and evaluating product performance across diverse categories. It aims to provide a comprehensive, real-time interactive platform to analyze and visualize sales data, facilitating informed decision-making. The project's objectives include comparing product category performance, examining pricing strategies and discount patterns, analyzing product ratings distribution, and correlating ratings with discounted prices. Utilizing Python for data analysis, Scikit-learn for EDA, Matplotlib/Seaborn and Tableau for visualization, Streamlit for application development, and AWS for cloud hosting, the platform will enable users to upload sales data, gain insights, perform custom analyses, and export visualizations. The primary dataset is the Amazon Products Sales Dataset from Kaggle, containing extensive sales data across various product categories. While the project promises valuable insights, limitations include potential dataset coverage gaps, dependency on data refresh rates for real-time updates, and biases in user ratings and reviews.
-    """
-    st.write(project_summary)
+    st.header("Project Overview")
+
+    st.write("""
+    The Amazon Product Analysis app is a powerful tool designed to analyze and visualize customer review data from Amazon. This project leverages data science and machine learning techniques to provide actionable insights into customer sentiments, product performance, and market trends.
+
+    ### Objectives
+    - **Customer Insights:** Understand customer feedback on Amazon products.
+    - **Trend Analysis:** Identify trends and patterns in product reviews over time.
+    - **Sentiment Analysis:** Determine overall sentiment using NLP techniques.
+    - **Data Visualization:** Present data in an interactive and easily interpretable format.
+
+    ### Key Components
+    1. **Data Collection:** Scrape and store review data from Amazon.
+    2. **Data Processing:** Clean, preprocess, and analyze the data.
+    3. **Visualization:** Create interactive visualizations and dashboards.
+    4. **User Interface:** Provide a user-friendly interface for data exploration.
+
+    ### Technologies Used
+    - **Programming Languages:** Python
+    - **Data Collection:** BeautifulSoup, Scrapy
+    - **Data Processing:** Pandas, NumPy
+    - **Sentiment Analysis:** NLTK, TextBlob, Scikit-learn
+    - **Visualization:** Matplotlib, Seaborn, Plotly, Dash
+    - **Web Framework:** Streamlit
+
+    This app empowers users with valuable insights derived from customer reviews, combining data analysis, sentiment analysis, and visualization techniques for comprehensive understanding and decision-making.
+    """)
 
 elif option == 'Data Analysis':
     st.header('Data Analysis')
@@ -84,6 +129,29 @@ elif option == 'Data Analysis':
     st.dataframe(numerical_stats.style.format("{:.2f}").set_properties(**{'text-align': 'center'}).set_table_styles(
         [dict(selector='th', props=[('text-align', 'center')])]))
 
+    ### Outlier Analysis for Actual Price
+    st.write("\n\n###### Outlier Analysis for Actual Price")
+    st.write("\n\nStandard Deviation of Actual Price is 13550819.54 which indicates high possibilities of Outliers")
+    Q1 = all_data['actual_price'].quantile(0.25)
+    Q3 = all_data['actual_price'].quantile(0.75)
+    IQR = Q3 - Q1
+
+    st.write("IQR of Actual Price - ", IQR)
+
+    # Define the acceptable range
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    # Filter out the outliers
+    all_data = all_data[(all_data['actual_price'] >= lower_bound) & (all_data['actual_price'] <= upper_bound)]
+
+    # Display summary statistics after filtering
+    st.write("Statistics after the removal of outliers")
+
+    numerical_stats = all_data[numerical_cols].describe().transpose()
+    st.dataframe(numerical_stats.style.format("{:.2f}").set_properties(**{'text-align': 'center'}).set_table_styles(
+        [dict(selector='th', props=[('text-align', 'center')])]))
+
     # Missing values analysis
     st.subheader('Step 2: Missing Values Analysis')
 
@@ -97,73 +165,99 @@ elif option == 'Data Analysis':
     st.dataframe(missing_values_df)
 
     # Price Distribution Analysis
-    st.subheader('Step 3: Price Distribution Analysis')
-    all_data['discount_price'] = all_data['discount_price'].replace('[₹,]', '', regex=True).astype(float)
-    all_data['actual_price'] = all_data['actual_price'].replace('[₹,]', '', regex=True).astype(float)
+    st.subheader('\nStep 3: Price Distribution Analysis')
 
-    st.subheader('Discount Price Distribution')
-    fig, ax = plt.subplots(figsize=(12, 6))
-    sns.histplot(all_data['discount_price'].dropna(), bins=50, kde=False, stat="density", color='skyblue',
-                 edgecolor='black', label='Histogram', ax=ax)
-    sns.kdeplot(all_data['discount_price'].dropna(), color='blue', linewidth=2, label='KDE', ax=ax)
-    ax.set_title('Discount Price Distribution with KDE')
-    ax.set_xlabel('Discount Price (₹)')
-    ax.set_ylabel('Density')
-    ax.set_xlim(0, 10000)
-    ax.legend()
-    st.pyplot(fig)
+    metrics = ['discount_price', 'actual_price']  # Replace with actual metric column names in your dataset
 
-    st.subheader('Actual Price Distribution')
-    fig, ax = plt.subplots(figsize=(12, 6))
-    sns.histplot(all_data['actual_price'].dropna(), bins=50, kde=False, stat="density", color='lightgreen',
-                 edgecolor='black', label='Histogram', ax=ax)
-    sns.kdeplot(all_data['actual_price'].dropna(), color='green', linewidth=2, label='KDE', ax=ax)
-    ax.set_title('Actual Price Distribution with KDE')
-    ax.set_xlabel('Actual Price (₹)')
-    ax.set_ylabel('Density')
-    ax.set_xlim(0, 50000)
-    ax.legend()
-    st.pyplot(fig)
+    # Create a streamlit app to display plots side by side
+    st.title('Histograms of Metrics')
+    cols = st.columns(len(metrics))
 
-    # Ratings Distribution Analysis
-    st.subheader('Step 4: Ratings Distribution Analysis')
-    fig, ax = plt.subplots(figsize=(12, 6))
-    sns.histplot(all_data['ratings'].dropna(), bins=50, kde=True, ax=ax)
-    ax.set_title('Ratings Distribution')
-    ax.set_xlabel('Ratings')
-    ax.set_ylabel('Frequency')
-    st.pyplot(fig)
+    for i, metric in enumerate(metrics):
+        with cols[i]:
+            fig = plot_histogram(all_data, metric, f'Distribution of {metric.capitalize()}')
+            st.plotly_chart(fig)
 
-    # Number of Ratings Distribution Analysis
-    st.subheader('Step 5: Number of Ratings Distribution Analysis')
-    fig, ax = plt.subplots(figsize=(12, 6))
-    sns.histplot(all_data['no_of_ratings'].dropna(), bins=50, kde=True, ax=ax)
-    ax.set_title('Number of Ratings Distribution')
-    ax.set_xlabel('Number of Ratings')
-    ax.set_ylabel('Frequency')
-    st.pyplot(fig)
+            # Calculate and display key metrics
+            mean_value = all_data[metric].mean()
+            median_value = all_data[metric].median()
+            std_dev_value = all_data[metric].std()
+            st.write(f"**Mean {metric.capitalize()}:** {mean_value:.2f}")
+            st.write(f"**Median {metric.capitalize()}:** {median_value:.2f}")
+            st.write(f"**Standard Deviation {metric.capitalize()}:** {std_dev_value:.2f}")
+
+
+    ### Ratings Data Analysis ###
+    metrics = ['ratings', 'no_of_ratings']  # Replace with actual metric column names in your dataset
+
+    # Create a streamlit app to display plots side by side
+    cols = st.columns(len(metrics))
+
+    for i, metric in enumerate(metrics):
+        with cols[i]:
+            fig = plot_histogram(all_data, metric, f'Distribution of {metric.capitalize()}')
+            st.plotly_chart(fig)
+
+            # Calculate and display key metrics
+            mean_value = all_data[metric].mean()
+            median_value = all_data[metric].median()
+            std_dev_value = all_data[metric].std()
+            st.write(f"**Mean {metric.capitalize()}:** {mean_value:.2f}")
+            st.write(f"**Median {metric.capitalize()}:** {median_value:.2f}")
+            st.write(f"**Standard Deviation {metric.capitalize()}:** {std_dev_value:.2f}")
+
+    st.subheader('')
+
 
     # Category-wise Analysis
     st.subheader('Step 6: Category-wise Analysis')
-    category_counts = all_data['category'].value_counts()
 
-    fig, ax = plt.subplots(figsize=(12, 6))
-    sns.barplot(x=category_counts.index, y=category_counts.values, ax=ax)
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-    ax.set_title('Number of Products per Category')
-    ax.set_xlabel('Category')
-    ax.set_ylabel('Number of Products')
-    st.pyplot(fig)
+    # Counting the number of products per category
+    category_counts = all_data['main_category'].value_counts()
+
+    # Generate colors dynamically based on number of categories
+    num_categories = len(category_counts)
+    colors = px.colors.qualitative.Plotly[:num_categories]  # Using Plotly's qualitative color palette
+
+    # Create Plotly bar chart
+    fig = go.Figure(go.Bar(
+        x=category_counts.index,
+        y=category_counts.values,
+        marker_color=colors  # Assign colors based on the dynamically generated list
+    ))
+
+    fig.update_layout(
+        title='Number of Products per Category',
+        xaxis=dict(title='Category'),
+        yaxis=dict(title='Number of Products'),
+        xaxis_tickangle=-45  # Rotate x-axis labels
+    )
+    st.plotly_chart(fig)
 
     # Correlation Analysis
-    st.subheader('Step 7: Correlation Analysis')
+    # Calculate correlation matrix
     correlation_matrix = all_data[['discount_price', 'actual_price', 'ratings', 'no_of_ratings']].corr()
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', ax=ax)
-    ax.set_title('Correlation Matrix')
-    st.pyplot(fig)
+    # Create Plotly heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=correlation_matrix.values,
+        x=correlation_matrix.columns,
+        y=correlation_matrix.index,
+        colorscale='RdBu',  # Choose colorscale
+        zmin=-1, zmax=1,  # Set min and max values for color scale
+        colorbar=dict(title='Correlation')
+    ))
 
+    fig.update_layout(
+        title='Correlation Matrix',
+        xaxis=dict(title='Metrics'),
+        yaxis=dict(title='Metrics')
+    )
+
+    # Display the plot in Streamlit
+    st.plotly_chart(fig)
+
+    
 elif option == 'Product Comparison':
     st.header('Product Comparison')
 
