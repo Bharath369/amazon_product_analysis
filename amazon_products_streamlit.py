@@ -27,9 +27,9 @@ st.markdown(
     .logo {{
         position: absolute;
         top: -30px;
-        right: 100px;
+        right: 140px;
         width: 0.5px;  # Adjust the width as needed
-        height: auto;
+        height: 10px;
     }}
     </style>
     <div class="logo">
