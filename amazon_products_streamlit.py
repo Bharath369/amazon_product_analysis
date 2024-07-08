@@ -257,7 +257,7 @@ elif option == 'Data Analysis':
     # Display the plot in Streamlit
     st.plotly_chart(fig)
 
-    
+
 elif option == 'Product Comparison':
     st.header('Product Comparison')
 
@@ -273,77 +273,88 @@ elif option == 'Product Comparison':
         selected_sub_categories = st.sidebar.multiselect('Select Sub Categories:', sub_categories)
 
         if selected_sub_categories:
-            product_names = all_data[(all_data['main_category'].isin(selected_main_categories)) &
-                                     (all_data['sub_category'].isin(selected_sub_categories))]['product_name'].unique()
-            selected_products = st.sidebar.multiselect('Select Products:', product_names)
+            selected_data = all_data[(all_data['main_category'].isin(selected_main_categories)) &
+                                     (all_data['sub_category'].isin(selected_sub_categories))]
 
-            if selected_products:
-                selected_data = all_data[all_data['product_name'].isin(selected_products)].copy()
+            # Calculate discount percentage
+            selected_data['discount_percentage'] = ((selected_data['actual_price'] - selected_data['discount_price']) /
+                                                    selected_data['actual_price']) * 100
 
-                # Calculate discount percentage
-                selected_data['discount_percentage'] = ((selected_data['actual_price'] - selected_data[
-                    'discount_price']) / selected_data['actual_price']) * 100
+            # Compute necessary statistics for selected products
+            product_cat_stats = selected_data.groupby('sub_category').agg({
+                'ratings': ['mean', 'median', 'min', 'max', 'std'],
+                'no_of_ratings': 'sum',
+                'discount_price': ['mean', 'median', 'min', 'max', 'std'],
+                'actual_price': ['mean', 'median', 'min', 'max', 'std'],
+                'discount_percentage': 'mean'
+            }).reset_index()
 
-                # Truncate product names to 50 characters for plotting
-                selected_data['truncated_product_name'] = selected_data['product_name'].str[:50]
+            # Flatten MultiIndex columns
+            product_cat_stats.columns = ['_'.join(col).strip() if col[1] else col[0] for col in
+                                         product_cat_stats.columns.values]
 
-                # Compute necessary statistics for selected products
-                product_stats = selected_data.groupby('product_name').agg({
-                    'ratings': ['mean', 'median', 'min', 'max', 'std'],
-                    'no_of_ratings': 'sum',
-                    'discount_price': ['mean', 'median', 'min', 'max', 'std'],
-                    'actual_price': ['mean', 'median', 'min', 'max', 'std'],
-                    'discount_percentage': 'mean'
-                }).reset_index()
+            # Display selected product information in a table
+            st.subheader('Selected Product Information')
+            st.dataframe(product_cat_stats)
 
-                # Flatten MultiIndex columns
-                product_stats.columns = ['_'.join(col).strip() if col[1] else col[0] for col in
-                                         product_stats.columns.values]
 
-                # Display selected product information in a table
-                st.subheader('Selected Product Information')
+            # Create figure for comparisons
+            fig_comparisons = go.Figure()
 
-                # Display product statistics in tabular form
-                st.dataframe(product_stats)
+            # Add bar plots for each metric comparison
+            for i, metric in enumerate(
+                    ['discount_price_mean', 'actual_price_mean']):
+                fig_comparisons.add_trace(go.Bar(x=product_cat_stats['sub_category'], y=product_cat_stats[metric],
+                                                 name=metric.split('_')[0].capitalize()))
 
-                product_stats['truncated_product_name'] = product_stats['product_name'].str[:50]
-                # Ratings Distribution
-                st.subheader('Ratings Distribution')
-                fig, ax = plt.subplots(figsize=(10, 5))
-                sns.boxplot(x='truncated_product_name', y='ratings', data=selected_data, ax=ax)
-                ax.set_title('Ratings Distribution')
-                ax.set_xlabel('Product Name')
-                ax.set_ylabel('Ratings')
-                st.pyplot(fig)
+            # Update layout for comparisons
+            fig_comparisons.update_layout(barmode='group', title='Metrics Comparisons',
+                                          xaxis_title='Sub Category', yaxis_title='Value')
 
-                # Comparison plots (example)
-                if len(selected_products) > 1:
-                    st.subheader('Price Comparison')
-                    fig, ax = plt.subplots(figsize=(10, 5))
-                    sns.barplot(x='truncated_product_name', y='discount_price_mean', data=product_stats, ax=ax)
-                    ax.set_title('Discount Price Comparison')
-                    ax.set_xlabel('Product Name')
-                    ax.set_ylabel('Discount Price (₹)')
-                    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-                    st.pyplot(fig)
+            # Display comparisons
+            st.plotly_chart(fig_comparisons)
 
-                    st.subheader('Ratings Comparison')
-                    fig, ax = plt.subplots(figsize=(10, 5))
-                    sns.barplot(x='truncated_product_name', y='ratings_mean', data=product_stats, ax=ax)
-                    ax.set_title('Ratings Comparison')
-                    ax.set_xlabel('Product Name')
-                    ax.set_ylabel('Ratings')
-                    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-                    st.pyplot(fig)
-                else:
-                    st.write("Please select more than one product for comparison.")
-            else:
-                st.write("Please select products from the sidebar to compare.")
+            # Example using Plotly
+            fig_box = px.box(selected_data, x='sub_category', y='ratings', title='Ratings Distribution by Sub Category')
+            st.plotly_chart(fig_box)
+
+            # Example using Plotly
+            fig_scatter = px.scatter(selected_data, x='no_of_ratings', y='ratings', color='sub_category',
+                                     title='Ratings vs Number of Ratings')
+            st.plotly_chart(fig_scatter)
+
+            # Create a row for four pie charts
+            col1, col2 = st.columns(2)
+
+            # Create pie charts for each metric
+            fig_pie1 = px.pie(product_cat_stats, values='no_of_ratings_sum', names='sub_category',
+                              title='Number of Ratings Distribution')
+            with col1:
+                st.plotly_chart(fig_pie1)
+
+            fig_pie2 = px.pie(product_cat_stats, values='ratings_mean', names='sub_category',
+                              title='Ratings Distribution')
+            with col2:
+                st.plotly_chart(fig_pie2)
+
+
+
+            fig_pie3 = px.pie(product_cat_stats, values='actual_price_mean', names='sub_category',
+                              title='Actual Price Distribution')
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.plotly_chart(fig_pie3)
+
+            fig_pie4 = px.pie(product_cat_stats, values='discount_price_mean', names='sub_category',
+                              title='Discount Price Distribution')
+            with col2:
+                st.plotly_chart(fig_pie4)
+
         else:
             st.write("Please select subcategories from the sidebar.")
     else:
         st.write("Please select main categories from the sidebar.")
-
 
 elif option == 'About':
     st.header('About')
