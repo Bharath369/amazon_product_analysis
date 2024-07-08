@@ -28,7 +28,7 @@ st.markdown(
         position: absolute;
         top: 10px;
         right: 10px;
-        width: 100px;  # Adjust the width as needed
+        width: 20px;  # Adjust the width as needed
         height: auto;
     }}
     </style>
