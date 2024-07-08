@@ -26,8 +26,8 @@ st.markdown(
     <style>
     .logo {{
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: -30px;
+        right: 40px;
         width: 0.5px;  # Adjust the width as needed
         height: auto;
     }}
