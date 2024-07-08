@@ -1,3 +1,5 @@
+import base64
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,7 +14,44 @@ import plotly.graph_objects as go
 # Set page configuration
 st.set_page_config(layout="wide")
 
+logo_path = "amazon_logo.jpg"
 
+# Encode the image to base64
+with open(logo_path, "rb") as image_file:
+    encoded_string = base64.b64encode(image_file.read()).decode()
+
+# Use markdown to add the logo with custom CSS
+st.markdown(
+    f"""
+    <style>
+    .reportview-container .main .block-container{{
+        padding-top: 3rem;
+    }}
+    .reportview-container .main {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }}
+    .reportview-container .main .block-container{{
+        width: 70%;
+    }}
+    .reportview-container .main .block-container img{{
+        height: 50px;  # Adjust the height as needed
+    }}
+    .logo {{
+        position: absolute;
+        top: -10px;
+        right: 0px;
+        width: 130px;  # Adjust the width as needed
+        height: 130px;  # Adjust the height as needed
+    }}
+    </style>
+    <div class="logo">
+        <img src="data:image/png;base64,{encoded_string}" alt="Logo">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Load and combine all CSV files into a single DataFrame
 @st.cache_data
@@ -95,13 +134,13 @@ if option == 'Project Overview':
 
         ### Key Components
         1. **Data Collection:** Utilize the Amazon Products Sales Dataset from Kaggle, which includes comprehensive sales data for various product categories on Amazon.
-        2. **Data Processing:** Clean, preprocess, and analyze the data using Python with Pandas and Scikit-learn.
+        2. **Data Processing:** Clean, preprocess, and analyze the data using Python with Pandas.
         3. **Visualization:** Create interactive visualizations using Matplotlib, Seaborn, and Tableau.
         4. **User Interface:** Develop a user-friendly interface with Streamlit for interactive application development and deploy it on AWS.
 
         ### Technologies Used
         - **Programming Languages:** Python
-        - **Data Analysis:** Pandas, Scikit-learn
+        - **Data Analysis:** Pandas
         - **Visualization:** Matplotlib, Seaborn, Tableau
         - **Interactive Application Development:** Streamlit
         - **Cloud Hosting:** AWS
@@ -300,6 +339,7 @@ elif option == 'Product Comparison':
 
             # Compute necessary statistics for selected products
             product_cat_stats = selected_data.groupby('sub_category').agg({
+                'product_name' : ['count'],
                 'ratings': ['mean', 'median', 'min', 'max', 'std'],
                 'no_of_ratings': 'sum',
                 'discount_price': ['mean', 'median', 'min', 'max', 'std'],
@@ -310,9 +350,11 @@ elif option == 'Product Comparison':
             # Flatten MultiIndex columns
             product_cat_stats.columns = ['_'.join(col).strip() if col[1] else col[0] for col in
                                          product_cat_stats.columns.values]
+            product_cat_stats.rename(columns={'product_name_count': 'product_count'}, inplace=True)
+
 
             # Display selected product information in a table
-            st.subheader('Selected Product Information')
+            st.subheader('Selected Product Category Information')
             st.dataframe(product_cat_stats)
 
 
@@ -376,7 +418,7 @@ elif option == 'Product Comparison':
 
 elif option == 'About':
     st.header('About')
-    
+
     st.write("""
     The Amazon Sales Analytics Hub is a cutting-edge platform designed to equip Amazon retailers with real-time insights into customer preferences, pricing strategies, and product performance. This initiative tackles the challenges of informed decision-making by utilizing advanced data science and visualization techniques.
 
