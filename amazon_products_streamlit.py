@@ -53,7 +53,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.image([logo_path], width=300)
+st.image([logo_path], width=100, right = 10 )
 
 
 # Load and combine all CSV files into a single DataFrame
