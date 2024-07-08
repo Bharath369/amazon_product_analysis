@@ -75,63 +75,70 @@ if option == 'Project Overview':
     # Centered and beautified title
     st.markdown("""
     <div style='text-align: center;'>
-        <h1 style='font-size: 36px; color: #0066cc;'>Amazon Product Analysis App</h1>
+        <h1 style='font-size: 36px; color: #0066cc;'>Amazon Sales Analytics Hub</h1>
     </div>
     """, unsafe_allow_html=True)
 
     st.header("Project Overview")
 
     st.write("""
-    The Amazon Product Analysis app is a powerful tool designed to analyze and visualize customer review data from Amazon. This project leverages data science and machine learning techniques to provide actionable insights into customer sentiments, product performance, and market trends.
+        The Amazon Sales Analytics Hub is a comprehensive platform designed to analyze and visualize sales data from Amazon. This project aims to provide real-time insights into customer preferences, pricing strategies, and product performance across diverse categories.
 
-    ### Objectives
-    - **Customer Insights:** Understand customer feedback on Amazon products.
-    - **Trend Analysis:** Identify trends and patterns in product reviews over time.
-    - **Sentiment Analysis:** Determine overall sentiment using NLP techniques.
-    - **Data Visualization:** Present data in an interactive and easily interpretable format.
+        ### Problem Statement
+        Retailers on Amazon face challenges in understanding customer preferences, optimizing pricing strategies, and evaluating product performance across diverse categories. Current methods often lack the capability to provide comprehensive real-time insights into sales data, making it difficult to make informed decisions. An interactive and user-friendly platform is needed to analyze and visualize sales data, helping retailers address these issues effectively.
 
-    ### Key Components
-    1. **Data Collection:** Scrape and store review data from Amazon.
-    2. **Data Processing:** Clean, preprocess, and analyze the data.
-    3. **Visualization:** Create interactive visualizations and dashboards.
-    4. **User Interface:** Provide a user-friendly interface for data exploration.
+        ### Objectives
+        - **Compare Product Performance:** Examine the performance of various product categories.
+        - **Analyze Pricing Strategies:** Evaluate pricing strategies and discount patterns.
+        - **Review Distribution Analysis:** Analyze the distribution of product ratings and correlate the number of ratings with discounted prices.
+        - **Dynamic Data Exploration:** Enable dynamic data exploration through an interactive platform.
 
-    ### Technologies Used
-    - **Programming Languages:** Python
-    - **Data Collection:** BeautifulSoup, Scrapy
-    - **Data Processing:** Pandas, NumPy
-    - **Sentiment Analysis:** NLTK, TextBlob, Scikit-learn
-    - **Visualization:** Matplotlib, Seaborn, Plotly, Dash
-    - **Web Framework:** Streamlit
+        ### Key Components
+        1. **Data Collection:** Utilize the Amazon Products Sales Dataset from Kaggle, which includes comprehensive sales data for various product categories on Amazon.
+        2. **Data Processing:** Clean, preprocess, and analyze the data using Python with Pandas and Scikit-learn.
+        3. **Visualization:** Create interactive visualizations using Matplotlib, Seaborn, and Tableau.
+        4. **User Interface:** Develop a user-friendly interface with Streamlit for interactive application development and deploy it on AWS.
 
-    This app empowers users with valuable insights derived from customer reviews, combining data analysis, sentiment analysis, and visualization techniques for comprehensive understanding and decision-making.
-    """)
+        ### Technologies Used
+        - **Programming Languages:** Python
+        - **Data Analysis:** Pandas, Scikit-learn
+        - **Visualization:** Matplotlib, Seaborn, Tableau
+        - **Interactive Application Development:** Streamlit
+        - **Cloud Hosting:** AWS
+
+        This platform empowers users with valuable insights derived from sales data, combining data analysis, pricing strategy evaluation, and visualization techniques for comprehensive understanding and decision-making.
+        """)
 
 elif option == 'Data Analysis':
-    st.header('Data Analysis')
+    st.markdown("""
+    <div style='text-align: center;'>
+        <h1 style='font-size: 36px; color: #0066cc;'>Data Analysis</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Basic statistics and data overview
-    st.subheader('Step 1: Basic Statistics and Data Overview')
+    st.subheader('Basic Statistics and Data Overview')
 
     # Separate categorical and numerical columns
     categorical_cols = ['product_name', 'main_category', 'sub_category', 'image']
     numerical_cols = [col for col in all_data.columns if col not in categorical_cols]
 
     # Display basic statistics for categorical data
-    st.write('### Categorical Data Overview')
+    st.write('#### Categorical Data Overview')
     categorical_stats = all_data[categorical_cols].describe(include='all').transpose()
     st.dataframe(categorical_stats.style.set_properties(**{'text-align': 'center'}).set_table_styles(
         [dict(selector='th', props=[('text-align', 'center')])]))
 
     # Display basic statistics for numerical data
-    st.write('### Numerical Data Overview')
+    st.write('#### Numerical Data Overview')
     numerical_stats = all_data[numerical_cols].describe().transpose()
     st.dataframe(numerical_stats.style.format("{:.2f}").set_properties(**{'text-align': 'center'}).set_table_styles(
         [dict(selector='th', props=[('text-align', 'center')])]))
 
     ### Outlier Analysis for Actual Price
-    st.write("\n\n###### Outlier Analysis for Actual Price")
-    st.write("\n\nStandard Deviation of Actual Price is 13550819.54 which indicates high possibilities of Outliers")
+    st.write("")
+    st.write("#### Outlier Analysis for Actual Price")
+    st.write("Standard Deviation of Actual Price is 13550819.54 which indicates high possibilities of Outliers.")
     Q1 = all_data['actual_price'].quantile(0.25)
     Q3 = all_data['actual_price'].quantile(0.75)
     IQR = Q3 - Q1
@@ -146,14 +153,16 @@ elif option == 'Data Analysis':
     all_data = all_data[(all_data['actual_price'] >= lower_bound) & (all_data['actual_price'] <= upper_bound)]
 
     # Display summary statistics after filtering
-    st.write("Statistics after the removal of outliers")
+    st.write("")
+    st.markdown("<u>Statistics after the removal of outliers</u>", unsafe_allow_html=True)
 
     numerical_stats = all_data[numerical_cols].describe().transpose()
     st.dataframe(numerical_stats.style.format("{:.2f}").set_properties(**{'text-align': 'center'}).set_table_styles(
         [dict(selector='th', props=[('text-align', 'center')])]))
 
     # Missing values analysis
-    st.subheader('Step 2: Missing Values Analysis')
+    st.write("")
+    st.subheader('Missing Values Analysis')
 
     # Check for missing values
     missing_values = all_data.isnull().sum()
@@ -165,12 +174,13 @@ elif option == 'Data Analysis':
     st.dataframe(missing_values_df)
 
     # Price Distribution Analysis
-    st.subheader('\nStep 3: Price Distribution Analysis')
+    st.write("")
+    st.subheader('Price Distribution Analysis')
 
     metrics = ['discount_price', 'actual_price']  # Replace with actual metric column names in your dataset
 
     # Create a streamlit app to display plots side by side
-    st.title('Histograms of Metrics')
+    st.markdown("<h4 style='text-align: center;'>Histograms of Metrics</h4>", unsafe_allow_html=True)
     cols = st.columns(len(metrics))
 
     for i, metric in enumerate(metrics):
@@ -210,7 +220,8 @@ elif option == 'Data Analysis':
 
 
     # Category-wise Analysis
-    st.subheader('Step 6: Category-wise Analysis')
+    st.write("")
+    st.subheader('Category-wise Analysis')
 
     # Counting the number of products per category
     category_counts = all_data['main_category'].value_counts()
@@ -249,9 +260,12 @@ elif option == 'Data Analysis':
     ))
 
     fig.update_layout(
-        title='Correlation Matrix',
         xaxis=dict(title='Metrics'),
-        yaxis=dict(title='Metrics')
+        yaxis=dict(title='Metrics'),
+        title=dict(
+        text='Correlation Heatmap',
+        font=dict(size=28)  # Increase the size of the title
+    )
     )
 
     # Display the plot in Streamlit
@@ -259,7 +273,11 @@ elif option == 'Data Analysis':
 
 
 elif option == 'Product Comparison':
-    st.header('Product Comparison')
+    st.markdown("""
+    <div style='text-align: center;'>
+        <h1 style='font-size: 36px; color: #0066cc;'>Product Comparison</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Sidebar product selection
     st.sidebar.subheader('Select Products for Comparison')
@@ -358,7 +376,18 @@ elif option == 'Product Comparison':
 
 elif option == 'About':
     st.header('About')
-    about_text = """
-        This project was developed as part of the BANA 8083 - 006 MS Capstone at the University of Cincinnati. 
-        It aims to provide Amazon retailers with actionable insights through a comprehensive, real-time interactive 
-        platform for analyzing and visual"""
+    
+    st.write("""
+    The Amazon Sales Analytics Hub is a cutting-edge platform designed to equip Amazon retailers with real-time insights into customer preferences, pricing strategies, and product performance. This initiative tackles the challenges of informed decision-making by utilizing advanced data science and visualization techniques.
+
+    Through dynamic data exploration and thorough analysis, the platform enables users to comprehend customer behavior, fine-tune pricing strategies, and assess product performance across various categories.
+
+    Developed as part of the BANA 8083 - 006 MS Capstone at the University of Cincinnati, this project aims to offer Amazon retailers actionable insights via a comprehensive, interactive platform for real-time sales data analysis and visualization.
+    """)
+
+    st.subheader("Contact")
+
+    st.write("**Name:** Bharath Marturu")
+    st.write("**Email Address:** marturbh@mail.uc.edu")
+    st.write("**LinkedIn:** [Bharath Marturu](https://www.linkedin.com/in/bharath-marturu-6b08b3a8/)")
+    st.write("**Phone Number:** +1 (513) 399 0530")
