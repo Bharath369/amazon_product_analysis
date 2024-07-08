@@ -36,7 +36,7 @@ st.markdown(
         width: 70%;
     }}
     .reportview-container .main .block-container img{{
-        height: 50px;  # Adjust the height as needed
+        height: 20px;  # Adjust the height as needed
     }}
     .logo {{
         position: absolute;
