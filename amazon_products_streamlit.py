@@ -42,8 +42,8 @@ st.markdown(
         position: absolute;
         top: -10px;
         right: 0px;
-        width: 130px;  # Adjust the width as needed
-        height: 130px;  # Adjust the height as needed
+        width: 40px;  # Adjust the width as needed
+        height: 40px;  # Adjust the height as needed
     }}
     </style>
     <div class="logo">
