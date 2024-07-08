@@ -40,9 +40,6 @@ st.markdown(
 )
 
 
-st.image([logo_path], width=100, right = 10 )
-
-
 # Load and combine all CSV files into a single DataFrame
 @st.cache_data
 
