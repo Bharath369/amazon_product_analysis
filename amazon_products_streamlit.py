@@ -25,7 +25,7 @@ st.markdown(
     f"""
     <style>
     .reportview-container .main .block-container{{
-        padding-top: 2rem;
+        padding-top: 1rem;
     }}
     .reportview-container .main {{
         display: flex;
