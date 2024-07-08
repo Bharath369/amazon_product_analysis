@@ -33,7 +33,7 @@ st.markdown(
         align-items: center;
     }}
     .reportview-container .main .block-container{{
-        width: 70%;
+        width: 30%;
     }}
     .reportview-container .main .block-container img{{
         height: 10px;  # Adjust the height as needed
