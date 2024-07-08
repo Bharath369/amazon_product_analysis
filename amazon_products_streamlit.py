@@ -24,26 +24,12 @@ with open(logo_path, "rb") as image_file:
 st.markdown(
     f"""
     <style>
-    .reportview-container .main .block-container{{
-        padding-top: 1rem;
-    }}
-    .reportview-container .main {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }}
-    .reportview-container .main .block-container{{
-        width: 30%;
-    }}
-    .reportview-container .main .block-container img{{
-        height: 10px;  # Adjust the height as needed
-    }}
     .logo {{
         position: absolute;
-        top: -50px;
-        right: -20px;
-        width: -10px;  # Adjust the width as needed
-        height: -10px;  # Adjust the height as needed
+        top: 10px;
+        right: 10px;
+        width: 100px;  # Adjust the width as needed
+        height: auto;
     }}
     </style>
     <div class="logo">
@@ -52,6 +38,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 st.image([logo_path], width=100, right = 10 )
 
