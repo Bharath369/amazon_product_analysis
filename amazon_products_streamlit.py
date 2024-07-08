@@ -25,7 +25,7 @@ st.markdown(
     f"""
     <style>
     .reportview-container .main .block-container{{
-        padding-top: 3rem;
+        padding-top: 2rem;
     }}
     .reportview-container .main {{
         display: flex;
@@ -40,10 +40,10 @@ st.markdown(
     }}
     .logo {{
         position: absolute;
-        top: -10px;
+        top: -50px;
         right: 0px;
-        width: 10px;  # Adjust the width as needed
-        height: 10px;  # Adjust the height as needed
+        width: 0px;  # Adjust the width as needed
+        height: 0px;  # Adjust the height as needed
     }}
     </style>
     <div class="logo">
