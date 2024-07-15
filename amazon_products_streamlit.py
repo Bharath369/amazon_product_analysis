@@ -24,6 +24,20 @@ with open(logo_path, "rb") as image_file:
 st.markdown(
     f"""
     <style>
+                                                  
+                          
+      
+                                  
+                      
+                                       
+                            
+      
+                                                  
+                   
+      
+                                                      
+                                                    
+      
     .logo {{
         position: absolute;
         top: -30px;
@@ -42,7 +56,6 @@ st.markdown(
 
 # Load and combine all CSV files into a single DataFrame
 @st.cache_data
-
 # Function to extract and load data from a zip file
 def load_data_from_zip(zip_path):
     with zipfile.ZipFile(zip_path, 'r') as z:
@@ -72,12 +85,12 @@ def plot_histogram(df, metric, title):
     )
     return fig
 
+
 zip_path = 'amazon_consolidated_data.zip'
 
 # Load data from the ZIP file
 all_data = load_data_from_zip(zip_path)
 all_data = all_data.loc[:, ~all_data.columns.str.startswith('Unnamed')]
-
 
 # Convert ratings and no_of_ratings to numeric and handle non-numeric values
 all_data['ratings'] = pd.to_numeric(all_data['ratings'], errors='coerce')
@@ -87,10 +100,21 @@ all_data['discount_price'] = pd.to_numeric(all_data['discount_price'], errors='c
 all_data['actual_price'] = all_data['actual_price'].replace('[₹,]', '', regex=True).astype(float)
 all_data['actual_price'] = pd.to_numeric(all_data['actual_price'], errors='coerce')
 
-
 avg_rating = all_data['ratings'].mean()
 avg_no_of_ratings = all_data['no_of_ratings'].mean()
-all_data = all_data.rename(columns={'name': 'product_name'})
+
+new_column_names = {
+    'name': 'Product Name',
+    'main_category': 'Main Category',
+    'sub_category': 'Sub Category',
+    'image': 'Image',
+    'discount_price': 'Discount Price',
+    'actual_price': 'Actual Price',
+    'ratings': 'Ratings',
+    'no_of_ratings': 'No of Ratings'
+}
+
+all_data = all_data.rename(columns=new_column_names)
 
 # Streamlit app
 # Sidebar for navigation
@@ -146,8 +170,8 @@ elif option == 'Data Analysis':
     st.subheader('Basic Statistics and Data Overview')
 
     # Separate categorical and numerical columns
-    categorical_cols = ['product_name', 'main_category', 'sub_category', 'image']
-    numerical_cols = [col for col in all_data.columns if col not in categorical_cols]
+    categorical_cols = ['Product Name', 'Main Category', 'Sub Category']
+    numerical_cols = [col for col in all_data.columns if col not in categorical_cols + ['Image']]
 
     # Display basic statistics for categorical data
     st.write('#### Categorical Data Overview')
@@ -165,8 +189,8 @@ elif option == 'Data Analysis':
     st.write("")
     st.write("#### Outlier Analysis for Actual Price")
     st.write("Standard Deviation of Actual Price is 13550819.54 which indicates high possibilities of Outliers.")
-    Q1 = all_data['actual_price'].quantile(0.25)
-    Q3 = all_data['actual_price'].quantile(0.75)
+    Q1 = all_data['Actual Price'].quantile(0.25)
+    Q3 = all_data['Actual Price'].quantile(0.75)
     IQR = Q3 - Q1
 
     st.write("IQR of Actual Price - ", IQR)
@@ -176,7 +200,7 @@ elif option == 'Data Analysis':
     upper_bound = Q3 + 1.5 * IQR
 
     # Filter out the outliers
-    all_data = all_data[(all_data['actual_price'] >= lower_bound) & (all_data['actual_price'] <= upper_bound)]
+    all_data = all_data[(all_data['Actual Price'] >= lower_bound) & (all_data['Actual Price'] <= upper_bound)]
 
     # Display summary statistics after filtering
     st.write("")
@@ -203,7 +227,7 @@ elif option == 'Data Analysis':
     st.write("")
     st.subheader('Price Distribution Analysis')
 
-    metrics = ['discount_price', 'actual_price']  # Replace with actual metric column names in your dataset
+    metrics = ['Discount Price', 'Actual Price']  # Replace with actual metric column names in your dataset
 
     # Create a streamlit app to display plots side by side
     st.markdown("<h4 style='text-align: center;'>Histograms of Metrics</h4>", unsafe_allow_html=True)
@@ -222,9 +246,8 @@ elif option == 'Data Analysis':
             st.write(f"**Median {metric.capitalize()}:** {median_value:.2f}")
             st.write(f"**Standard Deviation {metric.capitalize()}:** {std_dev_value:.2f}")
 
-
     ### Ratings Data Analysis ###
-    metrics = ['ratings', 'no_of_ratings']  # Replace with actual metric column names in your dataset
+    metrics = ['Ratings', 'No of Ratings']  # Replace with actual metric column names in your dataset
 
     # Create a streamlit app to display plots side by side
     cols = st.columns(len(metrics))
@@ -244,13 +267,12 @@ elif option == 'Data Analysis':
 
     st.subheader('')
 
-
     # Category-wise Analysis
     st.write("")
     st.subheader('Category-wise Analysis')
 
     # Counting the number of products per category
-    category_counts = all_data['main_category'].value_counts()
+    category_counts = all_data['Main Category'].value_counts()
 
     # Generate colors dynamically based on number of categories
     num_categories = len(category_counts)
@@ -273,7 +295,7 @@ elif option == 'Data Analysis':
 
     # Correlation Analysis
     # Calculate correlation matrix
-    correlation_matrix = all_data[['discount_price', 'actual_price', 'ratings', 'no_of_ratings']].corr()
+    correlation_matrix = all_data[['Discount Price', 'Actual Price', 'Ratings', 'No of Ratings']].corr()
 
     # Create Plotly heatmap
     fig = go.Figure(data=go.Heatmap(
@@ -289,9 +311,9 @@ elif option == 'Data Analysis':
         xaxis=dict(title='Metrics'),
         yaxis=dict(title='Metrics'),
         title=dict(
-        text='Correlation Heatmap',
-        font=dict(size=28)  # Increase the size of the title
-    )
+            text='Correlation Heatmap',
+            font=dict(size=28)  # Increase the size of the title
+        )
     )
 
     # Display the plot in Streamlit
@@ -309,49 +331,48 @@ elif option == 'Product Comparison':
     st.sidebar.subheader('Select Products for Comparison')
 
     # Allow selection from any main and sub category
-    main_categories = all_data['main_category'].unique()
+    main_categories = all_data['Main Category'].unique()
     selected_main_categories = st.sidebar.multiselect('Select Main Categories:', main_categories)
 
     if selected_main_categories:
-        sub_categories = all_data[all_data['main_category'].isin(selected_main_categories)]['sub_category'].unique()
+        sub_categories = all_data[all_data['Main Category'].isin(selected_main_categories)]['Sub Category'].unique()
         selected_sub_categories = st.sidebar.multiselect('Select Sub Categories:', sub_categories)
 
         if selected_sub_categories:
-            selected_data = all_data[(all_data['main_category'].isin(selected_main_categories)) &
-                                     (all_data['sub_category'].isin(selected_sub_categories))]
+            selected_data = all_data[(all_data['Main Category'].isin(selected_main_categories)) &
+                                     (all_data['Sub Category'].isin(selected_sub_categories))]
 
             # Calculate discount percentage
-            selected_data['discount_percentage'] = ((selected_data['actual_price'] - selected_data['discount_price']) /
-                                                    selected_data['actual_price']) * 100
+            selected_data['Discount Percentage'] = ((selected_data['Actual Price'] - selected_data['Discount Price']) /
+                                                    selected_data['Actual Price']) * 100
 
             # Compute necessary statistics for selected products
-            product_cat_stats = selected_data.groupby('sub_category').agg({
-                'product_name' : ['count'],
-                'ratings': ['mean', 'median', 'min', 'max', 'std'],
-                'no_of_ratings': 'sum',
-                'discount_price': ['mean', 'median', 'min', 'max', 'std'],
-                'actual_price': ['mean', 'median', 'min', 'max', 'std'],
-                'discount_percentage': 'mean'
+            product_cat_stats = selected_data.groupby('Sub Category').agg({
+                'Product Name': ['count'],
+                'Ratings': ['mean', 'median', 'min', 'max', 'std'],
+                'No of Ratings': 'sum',
+                'Discount Price': ['mean', 'median', 'min', 'max', 'std'],
+                'Actual Price': ['mean', 'median', 'min', 'max', 'std'],
+                'Discount Percentage': 'mean'
             }).reset_index()
 
             # Flatten MultiIndex columns
-            product_cat_stats.columns = ['_'.join(col).strip() if col[1] else col[0] for col in
+            product_cat_stats.columns = [' '.join(col).strip() if col[1] else col[0] for col in
                                          product_cat_stats.columns.values]
-            product_cat_stats.rename(columns={'product_name_count': 'product_count'}, inplace=True)
-
+            product_cat_stats.rename(columns={'Product Name count': 'Product Count'}, inplace=True)
 
             # Display selected product information in a table
             st.subheader('Selected Product Category Information')
             st.dataframe(product_cat_stats)
 
-
             # Create figure for comparisons
+
             fig_comparisons = go.Figure()
 
             # Add bar plots for each metric comparison
             for i, metric in enumerate(
-                    ['discount_price_mean', 'actual_price_mean']):
-                fig_comparisons.add_trace(go.Bar(x=product_cat_stats['sub_category'], y=product_cat_stats[metric],
+                    ['Discount Price mean', 'Actual Price mean']):
+                fig_comparisons.add_trace(go.Bar(x=product_cat_stats['Sub Category'], y=product_cat_stats[metric],
                                                  name=metric.split('_')[0].capitalize()))
 
             # Update layout for comparisons
@@ -362,11 +383,11 @@ elif option == 'Product Comparison':
             st.plotly_chart(fig_comparisons)
 
             # Example using Plotly
-            fig_box = px.box(selected_data, x='sub_category', y='ratings', title='Ratings Distribution by Sub Category')
+            fig_box = px.box(selected_data, x='Sub Category', y='Ratings', title='Ratings Distribution by Sub Category')
             st.plotly_chart(fig_box)
 
             # Example using Plotly
-            fig_scatter = px.scatter(selected_data, x='no_of_ratings', y='ratings', color='sub_category',
+            fig_scatter = px.scatter(selected_data, x='No of Ratings', y='Ratings', color='Sub Category',
                                      title='Ratings vs Number of Ratings')
             st.plotly_chart(fig_scatter)
 
@@ -374,26 +395,24 @@ elif option == 'Product Comparison':
             col1, col2 = st.columns(2)
 
             # Create pie charts for each metric
-            fig_pie1 = px.pie(product_cat_stats, values='no_of_ratings_sum', names='sub_category',
+            fig_pie1 = px.pie(product_cat_stats, values='No of Ratings sum', names='Sub Category',
                               title='Number of Ratings Distribution')
             with col1:
                 st.plotly_chart(fig_pie1)
 
-            fig_pie2 = px.pie(product_cat_stats, values='ratings_mean', names='sub_category',
+            fig_pie2 = px.pie(product_cat_stats, values='Ratings mean', names='Sub Category',
                               title='Ratings Distribution')
             with col2:
                 st.plotly_chart(fig_pie2)
 
-
-
-            fig_pie3 = px.pie(product_cat_stats, values='actual_price_mean', names='sub_category',
+            fig_pie3 = px.pie(product_cat_stats, values='Actual Price mean', names='Sub Category',
                               title='Actual Price Distribution')
 
             col1, col2 = st.columns(2)
             with col1:
                 st.plotly_chart(fig_pie3)
 
-            fig_pie4 = px.pie(product_cat_stats, values='discount_price_mean', names='sub_category',
+            fig_pie4 = px.pie(product_cat_stats, values='Discount Price mean', names='Sub Category',
                               title='Discount Price Distribution')
             with col2:
                 st.plotly_chart(fig_pie4)
