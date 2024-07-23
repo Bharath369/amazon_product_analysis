@@ -387,8 +387,19 @@ elif option == 'Product Comparison':
             st.plotly_chart(fig_box)
 
             # Example using Plotly
-            fig_scatter = px.scatter(selected_data, x='No of Ratings', y='Ratings', color='Sub Category',
-                                     title='Ratings vs Number of Ratings')
+            fig_scatter = px.scatter(
+                selected_data,
+                x='No of Ratings',
+                y='Ratings',
+                color='Sub Category',
+                title='Ratings vs Number of Ratings',
+                hover_name='Product Name',  # Main hover label
+                hover_data={
+                    'No of Ratings': True,  # Include this field in the hover
+                    'Ratings': True,  # Include this field in the hover
+                    'Sub Category': True  # Include this field in the hover
+                }
+            )
             st.plotly_chart(fig_scatter)
 
             # Create a row for four pie charts
