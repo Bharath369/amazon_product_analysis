@@ -383,7 +383,7 @@ elif option == 'Product Comparison':
             st.plotly_chart(fig_comparisons)
 
             # Example using Plotly
-            fig_box = px.box(selected_data, x='Sub Category', y='Average Ratings', title='Ratings Distribution by Sub Category')
+            fig_box = px.box(selected_data, x='Sub Category', y='Average Ratings', title='Average Ratings Distribution by Sub Category')
             st.plotly_chart(fig_box)
 
             # Example using Plotly
@@ -392,7 +392,7 @@ elif option == 'Product Comparison':
                 x='No of Ratings',
                 y='Average Ratings',
                 color='Sub Category',
-                title='Ratings vs Number of Ratings',
+                title='Average Ratings vs Number of Ratings',
                 hover_name='Product Name',  # Main hover label
                 hover_data={
                     'No of Ratings': True,  # Include this field in the hover
