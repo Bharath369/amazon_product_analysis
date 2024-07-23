@@ -110,7 +110,7 @@ new_column_names = {
     'image': 'Image',
     'discount_price': 'Discount Price',
     'actual_price': 'Actual Price',
-    'ratings': 'Ratings',
+    'ratings': 'Average Ratings',
     'no_of_ratings': 'No of Ratings'
 }
 
@@ -247,7 +247,7 @@ elif option == 'Data Analysis':
             st.write(f"**Standard Deviation {metric.capitalize()}:** {std_dev_value:.2f}")
 
     ### Ratings Data Analysis ###
-    metrics = ['Ratings', 'No of Ratings']  # Replace with actual metric column names in your dataset
+    metrics = ['Average Ratings', 'No of Ratings']  # Replace with actual metric column names in your dataset
 
     # Create a streamlit app to display plots side by side
     cols = st.columns(len(metrics))
@@ -295,7 +295,7 @@ elif option == 'Data Analysis':
 
     # Correlation Analysis
     # Calculate correlation matrix
-    correlation_matrix = all_data[['Discount Price', 'Actual Price', 'Ratings', 'No of Ratings']].corr()
+    correlation_matrix = all_data[['Discount Price', 'Actual Price', 'Average Ratings', 'No of Ratings']].corr()
 
     # Create Plotly heatmap
     fig = go.Figure(data=go.Heatmap(
@@ -349,7 +349,7 @@ elif option == 'Product Comparison':
             # Compute necessary statistics for selected products
             product_cat_stats = selected_data.groupby('Sub Category').agg({
                 'Product Name': ['count'],
-                'Ratings': ['mean', 'median', 'min', 'max', 'std'],
+                'Average Ratings': ['mean', 'median', 'min', 'max', 'std'],
                 'No of Ratings': 'sum',
                 'Discount Price': ['mean', 'median', 'min', 'max', 'std'],
                 'Actual Price': ['mean', 'median', 'min', 'max', 'std'],
@@ -383,20 +383,20 @@ elif option == 'Product Comparison':
             st.plotly_chart(fig_comparisons)
 
             # Example using Plotly
-            fig_box = px.box(selected_data, x='Sub Category', y='Ratings', title='Ratings Distribution by Sub Category')
+            fig_box = px.box(selected_data, x='Sub Category', y='Average Ratings', title='Ratings Distribution by Sub Category')
             st.plotly_chart(fig_box)
 
             # Example using Plotly
             fig_scatter = px.scatter(
                 selected_data,
                 x='No of Ratings',
-                y='Ratings',
+                y='Average Ratings',
                 color='Sub Category',
                 title='Ratings vs Number of Ratings',
                 hover_name='Product Name',  # Main hover label
                 hover_data={
                     'No of Ratings': True,  # Include this field in the hover
-                    'Ratings': True,  # Include this field in the hover
+                    'Average Ratings': True,  # Include this field in the hover
                     'Sub Category': True  # Include this field in the hover
                 }
             )
@@ -411,7 +411,7 @@ elif option == 'Product Comparison':
             with col1:
                 st.plotly_chart(fig_pie1)
 
-            fig_pie2 = px.pie(product_cat_stats, values='Ratings mean', names='Sub Category',
+            fig_pie2 = px.pie(product_cat_stats, values='Average Ratings mean', names='Sub Category',
                               title='Ratings Distribution')
             with col2:
                 st.plotly_chart(fig_pie2)
