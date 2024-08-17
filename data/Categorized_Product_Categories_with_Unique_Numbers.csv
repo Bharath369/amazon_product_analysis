@@ -1,0 +1,135 @@
+Number,Type,Product Category
+1,Electronics,Air Conditioners
+2,Electronics,All Appliances
+3,Electronics,All Electronics
+4,Electronics,Cameras
+5,Electronics,Camera Accessories
+6,Electronics,Car Electronics
+7,Electronics,Gaming Consoles
+8,Electronics,Home Audio and Theater
+9,Electronics,Home Entertainment Systems
+10,Electronics,Kitchen and Home Appliances
+11,Electronics,Personal Care Appliances
+12,Electronics,Refrigerators
+13,Electronics,Security Cameras
+14,Electronics,Televisions
+15,Electronics,Washing Machines
+16,Books & Media,All Books
+17,Books & Media,All English
+18,Books & Media,All Hindi
+19,Books & Media,Children's Books
+20,Books & Media,Fiction Books
+21,Books & Media,Indian Language Books
+22,Books & Media,Kindle eBooks
+23,Books & Media,School Textbooks
+24,Books & Media,Textbooks
+25,Books & Media,Exam Central
+26,Books & Media,Blu-ray
+27,Books & Media,Movies and TV Shows
+28,Books & Media,Music
+29,Books & Media,International Music
+30,Books & Media,Film Songs
+31,Books & Media,Indian Classical
+32,Fashion,Amazon Fashion
+33,Fashion,Baby Fashion
+34,Fashion,Backpacks
+35,Fashion,Bags and Luggage
+36,Fashion,Ballerinas
+37,Fashion,Casual Shoes
+38,Fashion,Clothing
+39,Fashion,Ethnic Wear
+40,Fashion,Fashion Sales and Deals
+41,Fashion,Fashion Sandals
+42,Fashion,Fashion and Silver Jewellery
+43,Fashion,Formal Shoes
+44,Fashion,Handbags and Clutches
+45,Fashion,Innerwear
+46,Fashion,Jeans
+47,Fashion,Jewellery
+48,Fashion,Kids Clothing
+49,Fashion,Kids Fashion
+50,Fashion,Kids Shoes
+51,Fashion,Kids Watches
+52,Fashion,Lingerie and Nightwear
+53,Fashion,Make-up
+54,Fashion,Mens Fashion
+55,Fashion,Shirts
+56,Fashion,Shoes
+57,Fashion,Sportswear
+58,Fashion,Sunglasses
+59,Fashion,T-shirts and Polos
+60,Fashion,Wallets
+61,Fashion,Watches
+62,Fashion,Western Wear
+63,Fashion,Womens Fashion
+64,Home & Kitchen,All Home and Kitchen
+65,Home & Kitchen,Baby Bath Skin and Grooming
+66,Home & Kitchen,Bedroom Linen
+67,Home & Kitchen,Furniture
+68,Home & Kitchen,Garden and Outdoors
+69,Home & Kitchen,Home Dcor
+70,Home & Kitchen,Home Furnishing
+71,Home & Kitchen,Home Improvement
+72,Home & Kitchen,Home Storage
+73,Home & Kitchen,Indoor Lighting
+74,Home & Kitchen,Kitchen Storage and Containers
+75,Home & Kitchen,Kitchen and Dining
+76,Sports & Outdoors,All Exercise and Fitness
+77,Sports & Outdoors,Badminton
+78,Sports & Outdoors,Camping and Hiking
+79,Sports & Outdoors,Cardio Equipment
+80,Sports & Outdoors,Cricket
+81,Sports & Outdoors,Cycling
+82,Sports & Outdoors,Fitness Accessories
+83,Sports & Outdoors,Football
+84,Sports & Outdoors,Running
+85,Sports & Outdoors,Sports Collectibles
+86,Sports & Outdoors,Sports Shoes
+87,Sports & Outdoors,Strength Training
+88,Sports & Outdoors,Yoga
+89,Health & Personal Care,All Grocery and Gourmet Foods
+90,Health & Personal Care,Amazon Pharmacy
+91,Health & Personal Care,Beauty and Grooming
+92,Health & Personal Care,Coffee Tea and Beverages
+93,Health & Personal Care,Diapers
+94,Health & Personal Care,Diet and Nutrition
+95,Health & Personal Care,Dog supplies
+96,Health & Personal Care,Health and Personal Care
+97,Health & Personal Care,Household Supplies
+98,Health & Personal Care,Luxury Beauty
+99,Health & Personal Care,Pantry
+100,Health & Personal Care,Personal Care Appliances
+101,Baby Products,Baby Products
+102,Baby Products,Nursing and Feeding
+103,Baby Products,Strollers and Prams
+104,Automotive,All Car and Motorbike Products
+105,Automotive,Car Accessories
+106,Automotive,Car Parts
+107,Automotive,Car and Bike Care
+108,Automotive,Motorbike Accessories and Parts
+109,Toys & Games,All Sports Fitness and Outdoors
+110,Toys & Games,Gaming Accessories
+111,Toys & Games,PC Games
+112,Toys & Games,STEM Toys Store
+113,Toys & Games,Toys and Games
+114,Toys & Games,International Toy Store
+115,Toys & Games,Toys Gifting Store
+116,Other,All Video Games
+117,Other,Amazon-Products
+118,Other,Backpacks
+119,Other,Bags and Luggage
+120,Other,Fine Art
+121,Other,Entertainment Collectibles
+122,Other,Industrial and Scientific Supplies
+123,Other,Janitorial and Sanitation Supplies
+124,Other,Lab and Scientific
+125,Other,Refurbished and Open Box
+126,Other,School Bags
+127,Other,Sewing and Craft Supplies
+128,Other,Subscribe and Save
+129,Other,Suitcases and Trolley Bags
+130,Other,The Designer Boutique
+131,Other,Travel Accessories
+132,Other,Travel Duffles
+133,Other,Value Bazaar
+134,Other,Video Games Deals
