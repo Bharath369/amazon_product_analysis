@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 # Set page configuration
 st.set_page_config(layout="wide")
 
-logo_path = "amazon_logo.jpg"
+logo_path = "images/amazon_logo.jpg"
 
 # Encode the image to base64
 with open(logo_path, "rb") as image_file:
@@ -86,7 +86,7 @@ def plot_histogram(df, metric, title):
     return fig
 
 
-zip_path = 'amazon_consolidated_data.zip'
+zip_path = 'data/amazon_consolidated_data.zip'
 
 # Load data from the ZIP file
 all_data = load_data_from_zip(zip_path)
